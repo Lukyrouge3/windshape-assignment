@@ -3,3 +3,6 @@ backend/scene.json
 
 frontend/.nuxt/
 frontend/node_modules/
+
+.vscode/
+.idea/
