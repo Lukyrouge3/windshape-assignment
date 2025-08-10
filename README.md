@@ -1,1 +1,36 @@
 # Assignment Nuxt.JS / Flask
+
+## Installation
+
+### Install script
+
+I've provided an install script to set up the project:
+
+```bash
+./install.sh
+```
+
+### Manual install
+
+#### Frontend
+
+1. Install [Node.js](https://nodejs.org/) (which includes npm).
+2. Install project dependencies:
+
+```bash
+cd frontend
+pnpm install # Or any other package manager you prefer (npm, yarn, etc...)
+```
+
+#### Backend
+
+1. Install [Python 3](https://www.python.org/downloads/) and
+   [pip](https://pip.pypa.io/en/stable/installation/).
+2. Create a virtual environment and install dependencies:
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
