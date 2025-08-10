@@ -34,3 +34,20 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+## Usage
+
+1. Start the backend server:
+
+```bash
+cd backend
+source venv/bin/activate
+python app.py
+```
+
+2. Start the frontend development server:
+
+```bash
+cd frontend
+pnpm dev
+```
