@@ -95,8 +95,8 @@
 
 	function renderScene() {
 		clearScene();
-		objects = sceneObjects.value.map((obj) => {
-			let geometry: THREE.BufferGeometry;
+		objects = sceneObjects.value.map((obj, i) => {
+			let geometry: THREE.BufferGeometry | undefined = undefined;
 			switch (obj.objectType) {
 				case ObjectTypes.Cube:
 					geometry = new THREE.BoxGeometry(obj.size, obj.size, obj.size);
@@ -113,6 +113,7 @@
 			const mesh = new THREE.Mesh(geometry, material);
 			mesh.position.set(obj.position.x, obj.position.y, obj.position.z);
 			scene.add(mesh);
+			mesh.userData.index = i;
 			return mesh;
 		});
 	}
@@ -121,11 +122,69 @@
 		initThree();
 	});
 
+	const raycaster = new THREE.Raycaster()
+	const mouse = new THREE.Vector2()
+	const dragPlane = new THREE.Plane()
+	const planeHit = new THREE.Vector3()
+	const dragOffset = new THREE.Vector3()
+	const selectedObject = ref<THREE.Mesh | null>(null)
+
+	function selectObject(event: MouseEvent) {
+		const rect = (event.target as HTMLElement).getBoundingClientRect();
+		mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+		mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+		raycaster.setFromCamera(mouse, camera);
+		const hits = raycaster.intersectObjects(objects, true);
+		if (!hits.length) {
+			selectedObject.value = null;
+			return;
+		}
+
+		selectedObject.value = hits[0]!.object as THREE.Mesh;
+		
+		const normal = camera.getWorldDirection(new THREE.Vector3());
+		dragPlane.setFromNormalAndCoplanarPoint(normal, selectedObject.value.position);
+
+		if (raycaster.ray.intersectPlane(dragPlane, planeHit)) {
+			dragOffset.copy(planeHit).sub(planeHit);
+		} else {
+			dragOffset.set(0, 0, 0);
+		}
+	}
+
+	function moveObject(event: MouseEvent) {
+		if (!selectedObject.value) return;
+		const rect = (event.target as HTMLElement).getBoundingClientRect();
+		mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+		mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+		raycaster.setFromCamera(mouse, camera);
+		if (raycaster.ray.intersectPlane(dragPlane, planeHit)) {
+			selectedObject.value!.position.copy(planeHit.sub(dragOffset));
+		}
+	}
+
+	function saveObject() {
+		if (selectedObject.value) {
+			const sceneObject: SceneObject | undefined = sceneObjects.value[selectedObject.value!.userData.index];
+			if (sceneObject) {
+				sceneObject.position = {
+					x: selectedObject.value.position.x,
+					y: selectedObject.value.position.y,
+					z: selectedObject.value.position.z
+				};
+				socket.emit("update_object", {index: selectedObject.value!.userData.index, object: sceneObject});
+			}
+		}
+		selectedObject.value = null;
+	}
+
 </script>
 
 <template>
   <div class="p-4 flex flex-col">
-		<div id="three" class="absolute inset-0"/>
+		<div id="three" class="absolute inset-0" @mousedown="selectObject" @mousemove="moveObject" @mouseup="saveObject"/>
 
 		<UCollapsible class="max-w-xl z-10 p-4" default-open>
 			<UButton

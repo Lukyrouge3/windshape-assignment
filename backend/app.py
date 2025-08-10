@@ -55,10 +55,9 @@ def handle_remove_object(data):
 def handle_update_object(data):
 	print(f"Updating object: {data}")
 
-	for i, obj in enumerate(scene["objects"]):
-			if obj["id"] == data["id"]:
-					scene["objects"][i] = data
-					break
+	obj = scene["objects"][data["index"]]
+	if obj:
+		obj.update(data["object"])
 
 	save_scene()
 
