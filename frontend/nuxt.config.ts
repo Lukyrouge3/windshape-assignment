@@ -1,17 +1,5 @@
-import { defineNuxtConfig } from 'nuxt/config'
-
-// Nuxt configuration
+// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  ssr: false,
-  modules: [
-    '@nuxt/ui'
-  ],
-  app: {
-    head: {
-      title: 'Assignment Nuxt.JS / Flask ',
-      meta: [
-        { name: 'description', content: 'Application Nuxt/Three.js' }
-      ]
-    }
-  }
+  compatibilityDate: '2025-07-15',
+  devtools: { enabled: true }
 })
