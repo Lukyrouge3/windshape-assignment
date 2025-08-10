@@ -7,7 +7,9 @@ from flask_socketio import SocketIO
 import json
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins=[
+	'http://localhost:3000', 'http://127.0.0.1:3000'
+])
 
 connection_count = 0
 
@@ -20,6 +22,10 @@ def handle_connect():
 	global connection_count
 	connection_count += 1
 	print(f"Client connected: {connection_count} total connections")
+
+@socketio.on("scene_data")
+def handle_scene_data(_data):
+  return scene
 
 @socketio.on("disconnect")
 def handle_disconnect():
