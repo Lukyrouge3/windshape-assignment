@@ -28,7 +28,9 @@
 		color: '#ff0000'
 	});
 
-	const socket = io('http://localhost:5000'); // TODO: Get url from env
+	const config = useRuntimeConfig();
+	console.log('Runtime config:', config);
+	const socket = io(config.public.backendUrl);
 
 	socket.emit('scene_data', null, (sceneData: {objects: SceneObject[]}) => {
 		sceneObjects.value = sceneData.objects;
