@@ -1,5 +1,7 @@
 # Assignment Nuxt.JS / Flask
 
+![Demo](assets/screenshot.png)
+
 ## Installation
 
 ### Install script
