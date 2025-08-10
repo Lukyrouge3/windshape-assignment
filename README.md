@@ -37,7 +37,21 @@ pip install -r requirements.txt
 
 ## Usage
 
-1. Start the backend server:
+### Docker
+
+To run the application using Docker, you can use the provided
+`docker-compose.yaml` file. Start the services:
+
+```bash
+docker-compose up --build
+```
+
+This command will build the images and start the containers for both the
+frontend and backend services.
+
+### Manually
+
+Start the backend server:
 
 ```bash
 cd backend
@@ -45,9 +59,13 @@ source venv/bin/activate
 python app.py
 ```
 
-2. Start the frontend development server:
+Start the frontend development server:
 
 ```bash
 cd frontend
 pnpm dev
 ```
+
+## Added dependencies
+
+None
