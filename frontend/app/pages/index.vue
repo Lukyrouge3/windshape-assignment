@@ -9,7 +9,7 @@
 	} as const;
 
 	type SceneObject = {
-		objectType: {label: string, value: typeof ObjectTypes[keyof typeof ObjectTypes] | undefined},
+		objectType: typeof ObjectTypes[keyof typeof ObjectTypes],
 		size: number,
 		position: {x: number, y: number, z: number},
 		color: string
@@ -22,7 +22,7 @@
 	]
 
 	const formState = reactive<SceneObject>({
-		objectType: { label: 'Cube', value: ObjectTypes.Cube },
+		objectType: ObjectTypes.Cube,
 		size: 1,
 		position: { x: 0, y: 0, z: 0 },
 		color: '#ff0000'
@@ -96,7 +96,19 @@
 	function renderScene() {
 		clearScene();
 		objects = sceneObjects.value.map((obj) => {
-			const geometry = new THREE.BoxGeometry(obj.size, obj.size, obj.size);
+			let geometry: THREE.BufferGeometry;
+			switch (obj.objectType) {
+				case ObjectTypes.Cube:
+					geometry = new THREE.BoxGeometry(obj.size, obj.size, obj.size);
+					break;
+				case ObjectTypes.Sphere:
+					geometry = new THREE.SphereGeometry(obj.size, 32, 32);
+					break;
+				case ObjectTypes.Pyramid:
+					geometry = new THREE.ConeGeometry(obj.size, obj.size, 4);
+					break;
+			} 
+			if (!geometry) throw new Error(`Unknown type ${obj.objectType}`);
 			const material = new THREE.MeshStandardMaterial({ color: obj.color });
 			const mesh = new THREE.Mesh(geometry, material);
 			mesh.position.set(obj.position.x, obj.position.y, obj.position.z);
@@ -115,28 +127,40 @@
   <div class="p-4 flex flex-col">
 		<div id="three" class="absolute inset-0"/>
 
-		<UForm :state="formState" class="max-w-xl z-10 border border-white rounded-lg p-4" @submit.prevent="addObject">
-			<UFormField label="Select Object Type" name="objectType">
-				<USelect v-model="formState.objectType.value" :items="typeOptions" />
-			</UFormField>
+		<UCollapsible class="max-w-xl z-10 p-4" default-open>
+			<UButton
+						label="Add an object"
+						color="neutral"
+						variant="subtle"
+						trailing-icon="i-lucide-chevron-down"
+						block
+					/>
+			<template #content>
+				<UForm :state="formState" class="p-4 border border-white/50 rounded-lg" @submit.prevent="addObject">
+					<UFormField label="Select Object Type" name="objectType">
+						<USelect v-model="formState.objectType" :items="typeOptions" />
+					</UFormField>
 
-			<UFormField label="Size" name="size">
-				<UInputNumber v-model="formState.size" type="number" :step="0.1" />
-			</UFormField>
+					<UFormField label="Size" name="size">
+						<UInputNumber v-model="formState.size" type="number" :step="0.1" />
+					</UFormField>
 
-			<UFormField label="Position" name="position" class="">
-				<UInputNumber v-model="formState.position.x" type="number" :step="0.1" placeholder="X" />
-				<UInputNumber v-model="formState.position.y" type="number" :step="0.1" placeholder="Y" />
-				<UInputNumber v-model="formState.position.z" type="number" :step="0.1" placeholder="Z" />
-			</UFormField>
+					<UFormField label="Position" name="position" class="">
+						<UInputNumber v-model="formState.position.x" type="number" placeholder="X" />
+						<UInputNumber v-model="formState.position.y" type="number" placeholder="Y" />
+						<UInputNumber v-model="formState.position.z" type="number" placeholder="Z" />
+					</UFormField>
 
-			<UFormField label="Color" name="color">
-				<UColorPicker v-model="formState.color" />
-			</UFormField>
+					<UFormField label="Color" name="color">
+						<UColorPicker v-model="formState.color" />
+					</UFormField>
 
-			<div class="mt-4">
-        <UButton type="submit">Ajouter l'objet</UButton>
-      </div>
-		</UForm>
+					<div class="mt-4">
+						<UButton type="submit">Ajouter l'objet</UButton>
+					</div>
+				</UForm>
+			</template>
+		</UCollapsible>
+		
 	</div>
 </template>
