@@ -222,7 +222,7 @@
 						block
 					/>
 			<template #content>
-				<UForm :state="formState" class="p-4 border border-white/50 rounded-lg" @submit.prevent="addObject">
+				<UForm :state="formState" class="p-4 border border-white/50 rounded-lg bg-white/10" @submit.prevent="addObject">
 					<UFormField label="Select Object Type" name="objectType">
 						<USelect v-model="formState.objectType" :items="typeOptions" />
 					</UFormField>
