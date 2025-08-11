@@ -46,7 +46,7 @@ def handle_add_object(data):
 def handle_remove_object(data):
 	print(f"Removing object: {data}")
 
-	scene["objects"].remove(data)
+	del scene["objects"][data["index"]]
 	save_scene()
 	
 	socketio.emit("object_removed", data)
@@ -60,6 +60,7 @@ def handle_update_object(data):
 		obj.update(data["object"])
 
 	save_scene()
+	socketio.emit("object_updated", data)
 
 def save_scene():
 	with open("scene.json", "w") as f:

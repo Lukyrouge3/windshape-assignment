@@ -42,6 +42,22 @@
 		renderScene();
 	});
 
+	socket.on('object_updated', (data: {index: number; object: SceneObject}) => {
+		const index = data.index;
+		if (sceneObjects.value[index]) {
+			sceneObjects.value[index] = data.object;
+			renderScene();
+		}
+	});
+
+	socket.on('object_removed', (data: { index: number }) => {
+		const index = data.index;
+		if (sceneObjects.value[index]) {
+			sceneObjects.value.splice(index, 1);
+			renderScene();
+		}
+	});
+
 	const scene = new THREE.Scene();
 	const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
 	const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -137,19 +153,26 @@
 		mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
 		raycaster.setFromCamera(mouse, camera);
-		const hits = raycaster.intersectObjects(objects, true);
+		console.log(sceneObjects.value, objects);
+		const hits = raycaster.intersectObjects(objects, false);
 		if (!hits.length) {
 			selectedObject.value = null;
 			return;
 		}
 
 		selectedObject.value = hits[0]!.object as THREE.Mesh;
+
+		if (event.button === 2) {
+			socket.emit("remove_object", { index: selectedObject.value.userData.index });
+			selectedObject.value = null;
+			return;
+		}
 		
 		const normal = camera.getWorldDirection(new THREE.Vector3());
 		dragPlane.setFromNormalAndCoplanarPoint(normal, selectedObject.value.position);
 
 		if (raycaster.ray.intersectPlane(dragPlane, planeHit)) {
-			dragOffset.copy(planeHit).sub(planeHit);
+			dragOffset.copy(planeHit).sub(selectedObject.value.position);
 		} else {
 			dragOffset.set(0, 0, 0);
 		}
@@ -188,6 +211,10 @@
   <div class="p-4 flex flex-col">
 		<div id="three" class="absolute inset-0" @mousedown="selectObject" @mousemove="moveObject" @mouseup="saveObject"/>
 
+		<div class="max-w-lg z-10 p-4">
+			<p>To move an object, just drag and drop it.</p>
+			<p>To delete an object, right click it.</p>
+		</div>
 		<UCollapsible class="max-w-xl z-10 p-4" default-open>
 			<UButton
 						label="Add an object"
