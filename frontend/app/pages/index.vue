@@ -29,7 +29,6 @@
 	});
 
 	const config = useRuntimeConfig();
-	console.log('Runtime config:', config);
 	const socket = io(config.public.backendUrl);
 
 	socket.emit('scene_data', null, (sceneData: {objects: SceneObject[]}) => {
@@ -153,7 +152,6 @@
 		mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
 		raycaster.setFromCamera(mouse, camera);
-		console.log(sceneObjects.value, objects);
 		const hits = raycaster.intersectObjects(objects, false);
 		if (!hits.length) {
 			selectedObject.value = null;
